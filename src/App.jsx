@@ -20,10 +20,26 @@ function App() {
             ? q.incorrectAnswers
             : [];
 
-          let options = shuffle([...incorrect, q.correctAnswer]);
+          // correctAnswer ko string bana do (agar number ho)
+          let correct = typeof q.correctAnswer === "string"
+            ? q.correctAnswer
+            : String(q.correctAnswer);
 
-          return { ...q, options };
+          // Sab options ko string convert karo (in case koi number ho)
+          incorrect = incorrect.map(item =>
+            typeof item === "string" ? item : String(item)
+          );
+
+          let options = shuffle([...incorrect, correct]);
+
+          return {
+            ...q,
+            correctAnswer: correct,
+            incorrectAnswers: incorrect,
+            options
+          };
         });
+
 
         setQuiz(updated)
       })
