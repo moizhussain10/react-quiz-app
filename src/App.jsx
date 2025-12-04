@@ -16,9 +16,15 @@ function App() {
       .then(data => data.json())
       .then(value => {
         let updated = value.map(q => {
-          let options = shuffle([...q.incorrectAnswers, q.correctAnswer])
-          return { ...q, options }
-        })
+          let incorrect = Array.isArray(q.incorrectAnswers)
+            ? q.incorrectAnswers
+            : [];
+
+          let options = shuffle([...incorrect, q.correctAnswer]);
+
+          return { ...q, options };
+        });
+
         setQuiz(updated)
       })
   }
@@ -36,7 +42,7 @@ function App() {
   }
 
   function handleAnswer(opt) {
-    setSelectedOption(opt) 
+    setSelectedOption(opt)
   }
 
   function nextQuestion() {
@@ -46,7 +52,7 @@ function App() {
 
     if (index < quiz.length - 1) {
       setIndex(index + 1)
-      setSelectedOption(null) 
+      setSelectedOption(null)
     } else {
       alert(`Quiz Finished! 🎉 Your Score: ${score}/${quiz.length}`)
     }
