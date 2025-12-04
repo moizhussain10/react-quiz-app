@@ -15,30 +15,46 @@ function App() {
     fetch('https://the-trivia-api.com/v2/questions')
       .then(data => data.json())
       .then(value => {
-        let updated = value.map(q => {
-          let incorrect = Array.isArray(q.incorrectAnswers)
-            ? q.incorrectAnswers
-            : [];
+        function getDataFromAPI() {
+          fetch("https://the-trivia-api.com/v2/questions")
+            .then(res => res.json())
+            .then(value => {
 
-          // correctAnswer ko string bana do (agar number ho)
-          let correct = typeof q.correctAnswer === "string"
-            ? q.correctAnswer
-            : String(q.correctAnswer);
+              let updated = value.map(q => {
 
-          // Sab options ko string convert karo (in case koi number ho)
-          incorrect = incorrect.map(item =>
-            typeof item === "string" ? item : String(item)
-          );
+                // ---- QUESTION TEXT SAFE ----------
+                let questionText = "";
+                if (q.question && typeof q.question === "object" && q.question.text) {
+                  questionText = String(q.question.text);
+                } else {
+                  questionText = "Unknown Question";
+                }
 
-          let options = shuffle([...incorrect, correct]);
+                // ---- CORRECT ANSWER SAFE ----------
+                let correct = typeof q.correctAnswer === "string"
+                  ? q.correctAnswer
+                  : String(q.correctAnswer ?? "");
 
-          return {
-            ...q,
-            correctAnswer: correct,
-            incorrectAnswers: incorrect,
-            options
-          };
-        });
+                // ---- INCORRECT ANSWERS SAFE -------
+                let incorrect = Array.isArray(q.incorrectAnswers)
+                  ? q.incorrectAnswers.map(item => String(item))
+                  : [];
+
+                // ---- OPTIONS SAFE -----------------
+                let options = shuffle([...incorrect, correct]);
+
+                return {
+                  questionText,
+                  correct,
+                  options
+                };
+              });
+
+              setQuiz(updated);
+            })
+            .catch(err => console.log(err));
+        }
+
 
 
         setQuiz(updated)
@@ -62,7 +78,7 @@ function App() {
   }
 
   function nextQuestion() {
-    if (selectedOption === quiz[index].correctAnswer) {
+    if (selectedOption === quiz[index].correct) {
       setScore(score + 1)
     }
 
@@ -91,7 +107,7 @@ function App() {
       <hr />
       <br />
 
-      <h2>{quiz[index].question.text}</h2>
+      <h2>{quiz[index].questionText}</h2>
 
       <div>
         {quiz[index].options.map((opt, i) => (
