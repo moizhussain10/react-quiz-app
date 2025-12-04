@@ -20,9 +20,7 @@ function App() {
           return { ...q, options }
         })
         setQuiz(updated)
-        console.log(quiz)
       })
-      .catch(err => console.log(err))
   }
 
   function shuffle(array) {
